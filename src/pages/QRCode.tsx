@@ -4,31 +4,96 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import QRCodeGenerator from "react-qr-code";
 import { QrReader } from "react-qr-reader";
+import { db } from "@/lib/db";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const QRCode = () => {
-  const [qrValue, setQrValue] = useState("");
+  const [selectedChave, setSelectedChave] = useState("");
+  const [selectedHospede, setSelectedHospede] = useState("");
   const [scannedResult, setScannedResult] = useState("");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const handleScan = (result: any) => {
-    if (result) {
-      setScannedResult(result?.text);
-      toast({
-        title: "QR Code Lido",
-        description: "QR Code identificado com sucesso!",
-      });
-    }
+  const { data: chaves = [] } = useQuery({
+    queryKey: ["chaves"],
+    queryFn: db.getChaves,
+  });
+
+  const { data: hospedes = [] } = useQuery({
+    queryKey: ["hospedes"],
+    queryFn: db.getHospedes,
+  });
+
+  const generateQRValue = () => {
+    if (!selectedChave || !selectedHospede) return "";
+    return JSON.stringify({
+      chaveId: selectedChave,
+      hospedeId: selectedHospede,
+      timestamp: new Date().toISOString(),
+    });
   };
 
-  const handleError = (error: any) => {
-    console.error(error);
-    toast({
-      title: "Erro",
-      description: "Erro ao ler o QR Code. Tente novamente.",
-      variant: "destructive",
-    });
+  const handleScan = async (result: any) => {
+    if (result) {
+      try {
+        const data = JSON.parse(result.text);
+        const chave = chaves.find((c: any) => c.id === data.chaveId);
+        const hospede = hospedes.find((h: any) => h.id === data.hospedeId);
+
+        if (!chave || !hospede) {
+          throw new Error("Chave ou hóspede não encontrado");
+        }
+
+        const isReturning = chave.status === "em uso";
+        const novasChaves = chaves.map((c: any) => {
+          if (c.id === chave.id) {
+            return {
+              ...c,
+              status: isReturning ? "disponível" : "em uso",
+            };
+          }
+          return c;
+        });
+
+        await db.setChaves(novasChaves);
+        await db.addHistorico({
+          id: Date.now().toString(),
+          data: new Date().toISOString(),
+          tipo: isReturning ? "chave_devolvida" : "chave_entregue",
+          descricao: isReturning 
+            ? `Chave ${chave.numero} devolvida por ${hospede.nome}`
+            : `Chave ${chave.numero} retirada por ${hospede.nome}`,
+          quarto: chave.numero,
+          hospede: hospede.nome,
+        });
+
+        queryClient.invalidateQueries({ queryKey: ["chaves"] });
+        queryClient.invalidateQueries({ queryKey: ["historico"] });
+
+        setScannedResult(result.text);
+        toast({
+          title: "Sucesso",
+          description: isReturning 
+            ? "Chave devolvida com sucesso!"
+            : "Chave retirada com sucesso!",
+        });
+      } catch (error) {
+        toast({
+          title: "Erro",
+          description: "QR Code inválido ou expirado.",
+          variant: "destructive",
+        });
+      }
+    }
   };
 
   return (
@@ -42,20 +107,47 @@ const QRCode = () => {
         </TabsList>
 
         <TabsContent value="gerar" className="space-y-4">
-          <div className="grid w-full max-w-sm items-center gap-1.5">
-            <Label htmlFor="qrValue">Texto para o QR Code</Label>
-            <Input
-              type="text"
-              id="qrValue"
-              value={qrValue}
-              onChange={(e) => setQrValue(e.target.value)}
-              placeholder="Digite o texto para gerar o QR Code"
-            />
+          <div className="grid w-full max-w-sm items-center gap-4">
+            <div className="space-y-2">
+              <Label>Selecione a Chave</Label>
+              <Select onValueChange={setSelectedChave} value={selectedChave}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione uma chave" />
+                </SelectTrigger>
+                <SelectContent>
+                  {chaves
+                    .filter((c: any) => c.status === "disponível")
+                    .map((chave: any) => (
+                      <SelectItem key={chave.id} value={chave.id}>
+                        Chave {chave.numero} - {chave.status}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="space-y-2">
+              <Label>Selecione o Hóspede</Label>
+              <Select onValueChange={setSelectedHospede} value={selectedHospede}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione um hóspede" />
+                </SelectTrigger>
+                <SelectContent>
+                  {hospedes
+                    .filter((h: any) => h.status === "ativo")
+                    .map((hospede: any) => (
+                      <SelectItem key={hospede.id} value={hospede.id}>
+                        {hospede.nome} - Quarto {hospede.quarto}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
           </div>
 
-          {qrValue && (
+          {generateQRValue() && (
             <div className="flex justify-center p-4 bg-white rounded-lg">
-              <QRCodeGenerator value={qrValue} size={256} />
+              <QRCodeGenerator value={generateQRValue()} size={256} />
             </div>
           )}
         </TabsContent>
@@ -69,8 +161,7 @@ const QRCode = () => {
             />
             {scannedResult && (
               <div className="mt-4 p-4 bg-white rounded-lg border">
-                <Label className="font-semibold">Resultado:</Label>
-                <p className="mt-2">{scannedResult}</p>
+                <Label className="font-semibold">QR Code lido com sucesso!</Label>
               </div>
             )}
           </div>

@@ -1,9 +1,18 @@
 import { Save, Layout, Key, Users, QrCode, History } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/components/ui/use-toast";
 
 const Header = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+
+  const handleSave = () => {
+    toast({
+      title: "Sucesso",
+      description: "Todas as alterações foram salvas com sucesso!",
+    });
+  };
 
   return (
     <header className="fixed top-0 left-0 right-0 bg-white border-b z-50 shadow-sm">
@@ -51,7 +60,7 @@ const Header = () => {
               Histórico
             </Button>
           </nav>
-          <Button className="flex items-center gap-2">
+          <Button className="flex items-center gap-2" onClick={handleSave}>
             <Save size={20} />
             Salvar
           </Button>
