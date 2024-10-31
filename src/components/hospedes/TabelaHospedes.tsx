@@ -13,16 +13,16 @@ import { Hospede } from "@/types/hospede";
 interface TabelaHospedesProps {
   hospedes: Hospede[];
   onExcluir: (id: string) => void;
+  onEditar: (hospede: Hospede) => void;
 }
 
-export function TabelaHospedes({ hospedes, onExcluir }: TabelaHospedesProps) {
+export function TabelaHospedes({ hospedes, onExcluir, onEditar }: TabelaHospedesProps) {
   return (
-    <div className="rounded-md border">
+    <div className="rounded-md border overflow-x-auto">
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>Nome</TableHead>
-            <TableHead>Documento</TableHead>
             <TableHead>Quarto</TableHead>
             <TableHead>Status</TableHead>
             <TableHead>Data Entrada</TableHead>
@@ -34,14 +34,17 @@ export function TabelaHospedes({ hospedes, onExcluir }: TabelaHospedesProps) {
           {hospedes.map((hospede) => (
             <TableRow key={hospede.id}>
               <TableCell>{hospede.nome}</TableCell>
-              <TableCell>{hospede.documento}</TableCell>
               <TableCell>{hospede.quarto}</TableCell>
               <TableCell>{hospede.status}</TableCell>
               <TableCell>{hospede.dataEntrada}</TableCell>
               <TableCell>{hospede.dataSaida}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" size="icon">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => onEditar(hospede)}
+                  >
                     <Edit className="h-4 w-4" />
                   </Button>
                   <Button

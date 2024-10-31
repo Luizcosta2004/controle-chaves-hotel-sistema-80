@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/components/ui/use-toast";
@@ -15,11 +14,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 const QRCode = () => {
   const [selectedChave, setSelectedChave] = useState("");
   const [selectedHospede, setSelectedHospede] = useState("");
   const [scannedResult, setScannedResult] = useState("");
+  const [isReading, setIsReading] = useState(true);
+  const [operationType, setOperationType] = useState<"retirada" | "entrega">("retirada");
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -43,7 +51,7 @@ const QRCode = () => {
   };
 
   const handleScan = async (result: any) => {
-    if (result) {
+    if (result && isReading) {
       try {
         const data = JSON.parse(result.text);
         const chave = chaves.find((c: any) => c.id === data.chaveId);
@@ -53,7 +61,7 @@ const QRCode = () => {
           throw new Error("Chave ou hóspede não encontrado");
         }
 
-        const isReturning = chave.status === "em uso";
+        const isReturning = operationType === "entrega";
         const novasChaves = chaves.map((c: any) => {
           if (c.id === chave.id) {
             return {
@@ -80,6 +88,8 @@ const QRCode = () => {
         queryClient.invalidateQueries({ queryKey: ["historico"] });
 
         setScannedResult(result.text);
+        setIsReading(false);
+        
         toast({
           title: "Sucesso",
           description: isReturning 
@@ -154,11 +164,33 @@ const QRCode = () => {
 
         <TabsContent value="ler" className="space-y-4">
           <div className="max-w-sm mx-auto">
-            <QrReader
-              onResult={handleScan}
-              constraints={{ facingMode: "environment" }}
-              className="w-full"
-            />
+            <div className="mb-4">
+              <Label className="mb-2 block">Tipo de Operação</Label>
+              <Select onValueChange={(value: "retirada" | "entrega") => setOperationType(value)} value={operationType}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Selecione a operação" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="retirada">Retirada de Chave</SelectItem>
+                  <SelectItem value="entrega">Entrega de Chave</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            
+            {isReading ? (
+              <QrReader
+                onResult={handleScan}
+                constraints={{ facingMode: "environment" }}
+                className="w-full"
+              />
+            ) : (
+              <div className="text-center">
+                <Button onClick={() => setIsReading(true)}>
+                  Ler Novo QR Code
+                </Button>
+              </div>
+            )}
+            
             {scannedResult && (
               <div className="mt-4 p-4 bg-white rounded-lg border">
                 <Label className="font-semibold">QR Code lido com sucesso!</Label>

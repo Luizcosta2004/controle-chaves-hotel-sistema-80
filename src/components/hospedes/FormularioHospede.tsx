@@ -35,39 +35,6 @@ export function FormularioHospede({
         />
       </div>
       <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="documento" className="text-right">Documento</Label>
-        <Input
-          id="documento"
-          className="col-span-3"
-          value={novoHospede.documento || ""}
-          onChange={(e) =>
-            setNovoHospede({ ...novoHospede, documento: e.target.value })
-          }
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="telefone" className="text-right">Telefone</Label>
-        <Input
-          id="telefone"
-          className="col-span-3"
-          value={novoHospede.telefone || ""}
-          onChange={(e) =>
-            setNovoHospede({ ...novoHospede, telefone: e.target.value })
-          }
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
-        <Label htmlFor="email" className="text-right">Email</Label>
-        <Input
-          id="email"
-          className="col-span-3"
-          value={novoHospede.email || ""}
-          onChange={(e) =>
-            setNovoHospede({ ...novoHospede, email: e.target.value })
-          }
-        />
-      </div>
-      <div className="grid grid-cols-4 items-center gap-4">
         <Label htmlFor="quarto" className="text-right">Quarto</Label>
         <Input
           id="quarto"
