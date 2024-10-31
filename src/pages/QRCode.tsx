@@ -14,13 +14,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
 
 const QRCode = () => {
   const [selectedChave, setSelectedChave] = useState("");
@@ -111,9 +104,13 @@ const QRCode = () => {
       <h1 className="text-2xl font-bold mb-6">Geração e Leitura de QR Code</h1>
       
       <Tabs defaultValue="gerar" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="gerar">Gerar QR Code</TabsTrigger>
-          <TabsTrigger value="ler">Ler QR Code</TabsTrigger>
+        <TabsList className="mb-4 bg-primary">
+          <TabsTrigger value="gerar" className="data-[state=active]:bg-white">
+            Gerar QR Code
+          </TabsTrigger>
+          <TabsTrigger value="ler" className="data-[state=active]:bg-white">
+            Ler QR Code
+          </TabsTrigger>
         </TabsList>
 
         <TabsContent value="gerar" className="space-y-4">
@@ -121,7 +118,7 @@ const QRCode = () => {
             <div className="space-y-2">
               <Label>Selecione a Chave</Label>
               <Select onValueChange={setSelectedChave} value={selectedChave}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione uma chave" />
                 </SelectTrigger>
                 <SelectContent>
@@ -139,7 +136,7 @@ const QRCode = () => {
             <div className="space-y-2">
               <Label>Selecione o Hóspede</Label>
               <Select onValueChange={setSelectedHospede} value={selectedHospede}>
-                <SelectTrigger>
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione um hóspede" />
                 </SelectTrigger>
                 <SelectContent>
@@ -166,8 +163,11 @@ const QRCode = () => {
           <div className="max-w-sm mx-auto">
             <div className="mb-4">
               <Label className="mb-2 block">Tipo de Operação</Label>
-              <Select onValueChange={(value: "retirada" | "entrega") => setOperationType(value)} value={operationType}>
-                <SelectTrigger>
+              <Select 
+                onValueChange={(value: "retirada" | "entrega") => setOperationType(value)} 
+                value={operationType}
+              >
+                <SelectTrigger className="bg-white">
                   <SelectValue placeholder="Selecione a operação" />
                 </SelectTrigger>
                 <SelectContent>
@@ -185,7 +185,10 @@ const QRCode = () => {
               />
             ) : (
               <div className="text-center">
-                <Button onClick={() => setIsReading(true)}>
+                <Button 
+                  onClick={() => setIsReading(true)}
+                  className="bg-green-600 hover:bg-green-700"
+                >
                   Ler Novo QR Code
                 </Button>
               </div>
