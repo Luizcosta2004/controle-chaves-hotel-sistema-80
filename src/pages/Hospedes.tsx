@@ -12,13 +12,20 @@ import { Hospede, StatusHospede } from "@/types/hospede";
 import { useToast } from "@/components/ui/use-toast";
 import { FormularioHospede } from "@/components/hospedes/FormularioHospede";
 import { TabelaHospedes } from "@/components/hospedes/TabelaHospedes";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { db } from "@/lib/db";
 
 const Hospedes = () => {
-  const [hospedes, setHospedes] = useState<Hospede[]>([]);
   const [novoHospede, setNovoHospede] = useState<Partial<Hospede>>({});
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
-  const adicionarHospede = () => {
+  const { data: hospedes = [] } = useQuery({
+    queryKey: ["hospedes"],
+    queryFn: db.getHospedes,
+  });
+
+  const adicionarHospede = async () => {
     if (!novoHospede.nome || !novoHospede.documento || !novoHospede.quarto || !novoHospede.status) {
       toast({
         title: "Erro",
@@ -41,7 +48,20 @@ const Hospedes = () => {
       dataSaida: novoHospede.dataSaida || "",
     };
 
-    setHospedes([...hospedes, hospede]);
+    const novosHospedes = [...hospedes, hospede];
+    await db.setHospedes(novosHospedes);
+    await db.addHistorico({
+      id: Date.now().toString(),
+      data: new Date().toISOString(),
+      tipo: "hospede_checkin",
+      descricao: `Hóspede ${hospede.nome} realizou check-in`,
+      quarto: hospede.quarto,
+      hospede: hospede.nome,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["hospedes"] });
+    queryClient.invalidateQueries({ queryKey: ["historico"] });
+    
     setNovoHospede({});
     toast({
       title: "Sucesso",
@@ -49,8 +69,23 @@ const Hospedes = () => {
     });
   };
 
-  const excluirHospede = (id: string) => {
-    setHospedes(hospedes.filter((hospede) => hospede.id !== id));
+  const excluirHospede = async (id: string) => {
+    const hospede = hospedes.find((h: Hospede) => h.id === id);
+    const novosHospedes = hospedes.filter((h: Hospede) => h.id !== id);
+    
+    await db.setHospedes(novosHospedes);
+    await db.addHistorico({
+      id: Date.now().toString(),
+      data: new Date().toISOString(),
+      tipo: "hospede_checkout",
+      descricao: `Hóspede ${hospede?.nome} realizou check-out`,
+      quarto: hospede?.quarto,
+      hospede: hospede?.nome,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["hospedes"] });
+    queryClient.invalidateQueries({ queryKey: ["historico"] });
+    
     toast({
       title: "Sucesso",
       description: "Hóspede excluído com sucesso!",
