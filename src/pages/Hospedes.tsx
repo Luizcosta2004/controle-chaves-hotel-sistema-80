@@ -17,6 +17,7 @@ import { db } from "@/lib/db";
 
 const Hospedes = () => {
   const [novoHospede, setNovoHospede] = useState<Partial<Hospede>>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -26,7 +27,7 @@ const Hospedes = () => {
   });
 
   const adicionarHospede = async () => {
-    if (!novoHospede.nome || !novoHospede.documento || !novoHospede.quarto || !novoHospede.status) {
+    if (!novoHospede.nome || !novoHospede.quarto || !novoHospede.status) {
       toast({
         title: "Erro",
         description: "Por favor, preencha todos os campos obrigatórios.",
@@ -35,37 +36,51 @@ const Hospedes = () => {
       return;
     }
 
-    const hospede: Hospede = {
-      id: Date.now().toString(),
-      nome: novoHospede.nome,
-      documento: novoHospede.documento,
-      telefone: novoHospede.telefone || "",
-      email: novoHospede.email || "",
-      quarto: novoHospede.quarto,
-      status: novoHospede.status as StatusHospede,
-      observacao: novoHospede.observacao,
-      dataEntrada: novoHospede.dataEntrada || new Date().toISOString().split('T')[0],
-      dataSaida: novoHospede.dataSaida || "",
-    };
+    let novosHospedes;
+    if (novoHospede.id) {
+      // Editar hóspede existente
+      novosHospedes = hospedes.map((h: Hospede) =>
+        h.id === novoHospede.id ? { ...h, ...novoHospede } : h
+      );
+    } else {
+      // Adicionar novo hóspede
+      const hospede: Hospede = {
+        id: Date.now().toString(),
+        nome: novoHospede.nome,
+        documento: "",
+        telefone: "",
+        email: "",
+        quarto: novoHospede.quarto,
+        status: novoHospede.status as StatusHospede,
+        observacao: novoHospede.observacao,
+        dataEntrada: novoHospede.dataEntrada || new Date().toISOString().split('T')[0],
+        dataSaida: novoHospede.dataSaida || "",
+      };
+      novosHospedes = [...hospedes, hospede];
+    }
 
-    const novosHospedes = [...hospedes, hospede];
     await db.setHospedes(novosHospedes);
     await db.addHistorico({
       id: Date.now().toString(),
       data: new Date().toISOString(),
-      tipo: "hospede_checkin",
-      descricao: `Hóspede ${hospede.nome} realizou check-in`,
-      quarto: hospede.quarto,
-      hospede: hospede.nome,
+      tipo: novoHospede.id ? "hospede_editado" : "hospede_checkin",
+      descricao: novoHospede.id 
+        ? `Hóspede ${novoHospede.nome} editado`
+        : `Hóspede ${novoHospede.nome} realizou check-in`,
+      quarto: novoHospede.quarto,
+      hospede: novoHospede.nome,
     });
 
     queryClient.invalidateQueries({ queryKey: ["hospedes"] });
     queryClient.invalidateQueries({ queryKey: ["historico"] });
     
     setNovoHospede({});
+    setDialogOpen(false);
     toast({
       title: "Sucesso",
-      description: "Hóspede cadastrado com sucesso!",
+      description: novoHospede.id 
+        ? "Hóspede editado com sucesso!"
+        : "Hóspede cadastrado com sucesso!",
     });
   };
 
@@ -92,20 +107,27 @@ const Hospedes = () => {
     });
   };
 
+  const editarHospede = (hospede: Hospede) => {
+    setNovoHospede(hospede);
+    setDialogOpen(true);
+  };
+
   return (
     <div className="container mx-auto px-4 pt-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gerenciamento de Hóspedes</h1>
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
+            <Button className="flex items-center gap-2" onClick={() => setNovoHospede({})}>
               <Plus size={20} />
               Novo Hóspede
             </Button>
           </DialogTrigger>
           <DialogContent className="max-w-3xl">
             <DialogHeader>
-              <DialogTitle>Cadastrar Novo Hóspede</DialogTitle>
+              <DialogTitle>
+                {novoHospede.id ? "Editar Hóspede" : "Cadastrar Novo Hóspede"}
+              </DialogTitle>
             </DialogHeader>
             <FormularioHospede
               novoHospede={novoHospede}
@@ -119,6 +141,7 @@ const Hospedes = () => {
       <TabelaHospedes 
         hospedes={hospedes}
         onExcluir={excluirHospede}
+        onEditar={editarHospede}
       />
     </div>
   );
