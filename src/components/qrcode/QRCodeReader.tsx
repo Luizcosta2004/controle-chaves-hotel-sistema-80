@@ -22,14 +22,14 @@ export function QRCodeReader({ operationType, setOperationType, onScan }: QRCode
   const [scannedResult, setScannedResult] = useState("");
 
   const handleScan = (result: any) => {
-    if (result && isReading) {
+    if (result?.text && isReading) {
       setTempResult(result);
       setIsReading(false);
     }
   };
 
   const handleConfirm = () => {
-    if (tempResult) {
+    if (tempResult?.text) {
       onScan(tempResult);
       setScannedResult(tempResult.text);
       setTempResult(null);
@@ -59,6 +59,8 @@ export function QRCodeReader({ operationType, setOperationType, onScan }: QRCode
           onResult={handleScan}
           constraints={{ facingMode: "environment" }}
           className="w-full"
+          scanDelay={500}
+          videoId="qr-video"
         />
       ) : tempResult ? (
         <div className="text-center space-y-4">
