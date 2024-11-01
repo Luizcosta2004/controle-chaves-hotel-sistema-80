@@ -38,12 +38,10 @@ const Chaves = () => {
 
     let novasChaves;
     if (novaChave.id) {
-      // Editar chave existente
       novasChaves = chaves.map((c: Chave) =>
         c.id === novaChave.id ? { ...c, ...novaChave } : c
       );
     } else {
-      // Adicionar nova chave
       const chave: Chave = {
         id: Date.now().toString(),
         numero: novaChave.numero,
@@ -105,6 +103,19 @@ const Chaves = () => {
     setNovaChave(chave);
     setDialogOpen(true);
   };
+
+  // Add event listener for keyboard events
+  if (typeof window !== 'undefined') {
+    document.removeEventListener('keydown', handleKeyDown);
+    document.addEventListener('keydown', handleKeyDown);
+  }
+
+  function handleKeyDown(event: KeyboardEvent) {
+    const key = event.key?.toLowerCase();
+    if (key === 'escape' && dialogOpen) {
+      setDialogOpen(false);
+    }
+  }
 
   return (
     <div className="container mx-auto px-4 pt-20">
