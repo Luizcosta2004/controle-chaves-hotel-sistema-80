@@ -17,6 +17,7 @@ import { db } from "@/lib/db";
 
 const Chaves = () => {
   const [novaChave, setNovaChave] = useState<Partial<Chave>>({});
+  const [dialogOpen, setDialogOpen] = useState(false);
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
@@ -35,32 +36,46 @@ const Chaves = () => {
       return;
     }
 
-    const chave: Chave = {
-      id: Date.now().toString(),
-      numero: novaChave.numero,
-      andar: novaChave.andar,
-      tipo: novaChave.tipo,
-      status: novaChave.status,
-      observacao: novaChave.observacao,
-    };
+    let novasChaves;
+    if (novaChave.id) {
+      // Editar chave existente
+      novasChaves = chaves.map((c: Chave) =>
+        c.id === novaChave.id ? { ...c, ...novaChave } : c
+      );
+    } else {
+      // Adicionar nova chave
+      const chave: Chave = {
+        id: Date.now().toString(),
+        numero: novaChave.numero,
+        andar: novaChave.andar,
+        tipo: novaChave.tipo,
+        status: novaChave.status,
+        observacao: novaChave.observacao,
+      };
+      novasChaves = [...chaves, chave];
+    }
 
-    const novasChaves = [...chaves, chave];
     await db.setChaves(novasChaves);
     await db.addHistorico({
       id: Date.now().toString(),
       data: new Date().toISOString(),
-      tipo: "chave_entregue",
-      descricao: `Chave ${chave.numero} cadastrada`,
-      quarto: chave.numero,
+      tipo: novaChave.id ? "chave_editada" : "chave_cadastrada",
+      descricao: novaChave.id 
+        ? `Chave ${novaChave.numero} editada`
+        : `Chave ${novaChave.numero} cadastrada`,
+      quarto: novaChave.numero,
     });
 
     queryClient.invalidateQueries({ queryKey: ["chaves"] });
     queryClient.invalidateQueries({ queryKey: ["historico"] });
     
     setNovaChave({});
+    setDialogOpen(false);
     toast({
       title: "Sucesso",
-      description: "Chave cadastrada com sucesso!",
+      description: novaChave.id 
+        ? "Chave editada com sucesso!"
+        : "Chave cadastrada com sucesso!",
     });
   };
 
@@ -72,7 +87,7 @@ const Chaves = () => {
     await db.addHistorico({
       id: Date.now().toString(),
       data: new Date().toISOString(),
-      tipo: "chave_devolvida",
+      tipo: "chave_excluida",
       descricao: `Chave ${chave?.numero} excluída`,
       quarto: chave?.numero,
     });
@@ -88,16 +103,20 @@ const Chaves = () => {
 
   const editarChave = (chave: Chave) => {
     setNovaChave(chave);
+    setDialogOpen(true);
   };
 
   return (
     <div className="container mx-auto px-4 pt-20">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Gerenciamento de Chaves</h1>
-        <Dialog>
+        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="flex items-center gap-2">
-              <Plus size={20} />
+            <Button 
+              className="bg-primary hover:bg-primary/90 text-white"
+              onClick={() => setNovaChave({})}
+            >
+              <Plus className="h-5 w-5 mr-2" />
               Nova Chave
             </Button>
           </DialogTrigger>

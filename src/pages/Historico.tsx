@@ -25,7 +25,6 @@ const Historico = () => {
           <TableHeader>
             <TableRow>
               <TableHead>Data</TableHead>
-              <TableHead>Tipo</TableHead>
               <TableHead>Descrição</TableHead>
               <TableHead>Quarto</TableHead>
               <TableHead>Hóspede</TableHead>
@@ -35,7 +34,6 @@ const Historico = () => {
             {historico.map((item: HistoricoType) => (
               <TableRow key={item.id}>
                 <TableCell>{new Date(item.data).toLocaleString()}</TableCell>
-                <TableCell>{item.tipo.replace('_', ' ')}</TableCell>
                 <TableCell>{item.descricao}</TableCell>
                 <TableCell>{item.quarto || '-'}</TableCell>
                 <TableCell>{item.hospede || '-'}</TableCell>
