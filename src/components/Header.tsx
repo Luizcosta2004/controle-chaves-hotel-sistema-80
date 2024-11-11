@@ -130,6 +130,9 @@ const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/historico")}>
                   Histórico
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => navigate("/sobre")}>
+                  Informações do Programa
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>

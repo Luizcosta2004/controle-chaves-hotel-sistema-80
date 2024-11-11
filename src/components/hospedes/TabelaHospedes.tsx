@@ -7,16 +7,17 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Edit, Trash2 } from "lucide-react";
+import { Edit, Trash2, LogOut } from "lucide-react";
 import { Hospede } from "@/types/hospede";
 
 interface TabelaHospedesProps {
   hospedes: Hospede[];
   onExcluir: (id: string) => void;
   onEditar: (hospede: Hospede) => void;
+  onCheckout: (hospede: Hospede) => void;
 }
 
-export function TabelaHospedes({ hospedes, onExcluir, onEditar }: TabelaHospedesProps) {
+export function TabelaHospedes({ hospedes, onExcluir, onEditar, onCheckout }: TabelaHospedesProps) {
   return (
     <div className="rounded-md border overflow-x-auto">
       <Table>
@@ -40,6 +41,16 @@ export function TabelaHospedes({ hospedes, onExcluir, onEditar }: TabelaHospedes
               <TableCell>{hospede.dataSaida}</TableCell>
               <TableCell className="text-right">
                 <div className="flex justify-end gap-2">
+                  {hospede.status === "ativo" && (
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={() => onCheckout(hospede)}
+                      className="bg-yellow-500 hover:bg-yellow-600 text-white"
+                    >
+                      <LogOut className="h-4 w-4" />
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="icon"

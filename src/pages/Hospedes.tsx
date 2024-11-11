@@ -26,6 +26,36 @@ const Hospedes = () => {
     queryFn: db.getHospedes,
   });
 
+  const handleCheckout = async (hospede: Hospede) => {
+    const hospedeAtualizado = {
+      ...hospede,
+      status: "checkout" as StatusHospede,
+      dataSaida: new Date().toISOString().split('T')[0],
+    };
+
+    const novosHospedes = hospedes.map((h: Hospede) =>
+      h.id === hospede.id ? hospedeAtualizado : h
+    );
+
+    await db.setHospedes(novosHospedes);
+    await db.addHistorico({
+      id: Date.now().toString(),
+      data: new Date().toISOString(),
+      tipo: "hospede_checkout",
+      descricao: `Hóspede ${hospede.nome} realizou check-out`,
+      quarto: hospede.quarto,
+      hospede: hospede.nome,
+    });
+
+    queryClient.invalidateQueries({ queryKey: ["hospedes"] });
+    queryClient.invalidateQueries({ queryKey: ["historico"] });
+
+    toast({
+      title: "Sucesso",
+      description: "Check-out realizado com sucesso!",
+    });
+  };
+
   const adicionarHospede = async () => {
     if (!novoHospede.nome || !novoHospede.quarto || !novoHospede.status) {
       toast({
@@ -142,6 +172,7 @@ const Hospedes = () => {
         hospedes={hospedes}
         onExcluir={excluirHospede}
         onEditar={editarHospede}
+        onCheckout={handleCheckout}
       />
     </div>
   );

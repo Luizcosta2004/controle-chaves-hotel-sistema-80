@@ -9,6 +9,7 @@ import Chaves from "./pages/Chaves";
 import Hospedes from "./pages/Hospedes";
 import QRCode from "./pages/QRCode";
 import Historico from "./pages/Historico";
+import Sobre from "./pages/Sobre";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
             <Route path="/hospedes" element={<Hospedes />} />
             <Route path="/qrcode" element={<QRCode />} />
             <Route path="/historico" element={<Historico />} />
+            <Route path="/sobre" element={<Sobre />} />
           </Routes>
         </div>
       </BrowserRouter>
