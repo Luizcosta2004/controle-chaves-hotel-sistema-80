@@ -5,7 +5,9 @@ const urlsToCache = [
   '/manifest.json',
   '/icon.png',
   '/icon-192x192.png',
-  '/icon-512x512.png'
+  '/icon-512x512.png',
+  '/screenshot1.png',
+  '/screenshot2.png'
 ];
 
 self.addEventListener('install', (event) => {
@@ -13,6 +15,7 @@ self.addEventListener('install', (event) => {
     caches.open(CACHE_NAME)
       .then((cache) => cache.addAll(urlsToCache))
   );
+  self.skipWaiting();
 });
 
 self.addEventListener('fetch', (event) => {
@@ -34,4 +37,5 @@ self.addEventListener('activate', (event) => {
       );
     })
   );
+  self.clients.claim();
 });
