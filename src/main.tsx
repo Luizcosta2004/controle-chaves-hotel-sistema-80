@@ -2,15 +2,16 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Register Service Worker immediately
+// Register Service Worker
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js', { 
-    type: 'classic',
-    scope: '/'
-  }).then((registration) => {
-    console.log('ServiceWorker registration successful:', registration.scope);
-  }).catch((err) => {
-    console.error('ServiceWorker registration failed:', err);
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((registration) => {
+        console.log('ServiceWorker registration successful:', registration.scope);
+      })
+      .catch((error) => {
+        console.error('ServiceWorker registration failed:', error);
+      });
   });
 }
 
