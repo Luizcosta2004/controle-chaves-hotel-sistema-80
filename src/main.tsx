@@ -6,7 +6,9 @@ import './index.css';
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
-      const registration = await navigator.serviceWorker.register('./sw.js');
+      const registration = await navigator.serviceWorker.register('/sw.js', {
+        scope: '/'
+      });
       console.log('ServiceWorker registration successful:', registration.scope);
     } catch (error) {
       console.error('ServiceWorker registration failed:', error);

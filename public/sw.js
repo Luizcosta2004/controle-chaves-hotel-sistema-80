@@ -1,13 +1,13 @@
 const CACHE_NAME = 'hotel-keys-v1';
 const urlsToCache = [
-  './',
-  './index.html',
-  './manifest.json',
-  './icon.png',
-  './icon-192x192.png',
-  './icon-512x512.png',
-  './screenshot1.png',
-  './screenshot2.png'
+  '/',
+  '/index.html',
+  '/manifest.json',
+  '/icon.png',
+  '/icon-192x192.png',
+  '/icon-512x512.png',
+  '/screenshot1.png',
+  '/screenshot2.png'
 ];
 
 // Install SW
