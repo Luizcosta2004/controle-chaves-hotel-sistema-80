@@ -11,10 +11,10 @@ const config: CapacitorConfig = {
   },
   android: {
     buildOptions: {
-      keystorePath: 'hotelkeys.keystore',
-      keystorePassword: 'hotelkeys123',
-      keystoreAlias: 'hotelkeys',
-      keystoreAliasPassword: 'hotelkeys123'
+      keystorePath: undefined,
+      keystorePassword: undefined,
+      keystoreAlias: undefined,
+      keystoreAliasPassword: undefined
     },
     minSdkVersion: 22,
     targetSdkVersion: 33,
