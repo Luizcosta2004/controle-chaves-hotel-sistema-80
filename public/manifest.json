@@ -8,6 +8,7 @@
   "background_color": "#4F46E5",
   "theme_color": "#4F46E5",
   "orientation": "portrait",
+  "categories": ["business", "productivity"],
   "launch_handler": {
     "client_mode": ["focus-existing", "auto"]
   },
@@ -51,6 +52,26 @@
       "type": "image/png",
       "form_factor": "narrow",
       "label": "Tela de chaves do Hotel Keys"
+    }
+  ],
+  "prefer_related_applications": false,
+  "protocol_handlers": [
+    {
+      "protocol": "web+hotelkeys",
+      "url": "/%s"
+    }
+  ],
+  "scope": "/",
+  "shortcuts": [
+    {
+      "name": "Chaves",
+      "url": "/chaves",
+      "description": "Gerenciar chaves do hotel"
+    },
+    {
+      "name": "Hóspedes",
+      "url": "/hospedes",
+      "description": "Gerenciar hóspedes"
     }
   ]
 }

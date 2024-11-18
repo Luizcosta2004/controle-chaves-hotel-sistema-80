@@ -5,10 +5,21 @@ const config: CapacitorConfig = {
   appName: 'Hotel Keys',
   webDir: 'dist',
   server: {
-    androidScheme: 'https'
+    androidScheme: 'https',
+    cleartext: true,
+    allowNavigation: ['*']
   },
   android: {
-    minSdkVersion: 21, // Android 5.0
+    buildOptions: {
+      keystorePath: 'release-key.keystore',
+      keystorePassword: 'your_keystore_password',
+      keystoreAlias: 'release-key-alias',
+      keystoreAliasPassword: 'your_alias_password'
+    },
+    minSdkVersion: 21,
+    targetSdkVersion: 33,
+    versionCode: 1,
+    versionName: "1.0.0"
   }
 };
 
