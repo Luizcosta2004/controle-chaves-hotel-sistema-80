@@ -2,7 +2,7 @@ import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
 
-// Register Service Worker with proper scope and type
+// Registrar Service Worker com escopo e tipo apropriados
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', async () => {
     try {
