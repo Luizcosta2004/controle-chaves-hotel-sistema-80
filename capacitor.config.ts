@@ -11,15 +11,24 @@ const config: CapacitorConfig = {
   },
   android: {
     buildOptions: {
-      keystorePath: 'release-key.keystore',
-      keystorePassword: 'your_keystore_password',
-      keystoreAlias: 'release-key-alias',
-      keystoreAliasPassword: 'your_alias_password'
+      keystorePath: 'hotelkeys.keystore',
+      keystorePassword: 'hotelkeys123',
+      keystoreAlias: 'hotelkeys',
+      keystoreAliasPassword: 'hotelkeys123'
     },
-    minSdkVersion: 21,
+    minSdkVersion: 22,
     targetSdkVersion: 33,
     versionCode: 1,
     versionName: "1.0.0"
+  },
+  plugins: {
+    SplashScreen: {
+      launchShowDuration: 2000,
+      backgroundColor: "#4F46E5",
+      showSpinner: true,
+      androidSpinnerStyle: "large",
+      spinnerColor: "#ffffff"
+    }
   }
 };
 
