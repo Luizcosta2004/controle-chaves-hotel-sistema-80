@@ -10,6 +10,25 @@ const urlsToCache = [
   '/screenshot2.png'
 ];
 
+// Content type mapping
+const mimeTypes = {
+  '.html': 'text/html',
+  '.js': 'application/javascript',
+  '.css': 'text/css',
+  '.json': 'application/json',
+  '.png': 'image/png',
+  '.jpg': 'image/jpeg',
+  '.jpeg': 'image/jpeg',
+  '.gif': 'image/gif',
+  '.svg': 'image/svg+xml'
+};
+
+// Helper to determine content type
+const getContentType = (url) => {
+  const ext = url.substring(url.lastIndexOf('.'));
+  return mimeTypes[ext] || 'text/html';
+};
+
 // Install SW
 self.addEventListener('install', (event) => {
   event.waitUntil(
@@ -55,19 +74,35 @@ self.addEventListener('fetch', (event) => {
 
         return fetch(fetchRequest)
           .then((response) => {
-            if (!response || response.status !== 200 || response.type !== 'basic') {
+            if (!response || response.status !== 200) {
               return response;
             }
 
             const responseToCache = response.clone();
+            const contentType = getContentType(event.request.url);
+
+            // Create a new response with proper content type
+            const newResponse = new Response(responseToCache.body, {
+              status: responseToCache.status,
+              statusText: responseToCache.statusText,
+              headers: new Headers({
+                'Content-Type': contentType,
+                ...Object.fromEntries(responseToCache.headers.entries())
+              })
+            });
 
             caches.open(CACHE_NAME)
               .then((cache) => {
-                cache.put(event.request, responseToCache);
+                cache.put(event.request, newResponse);
               });
 
             return response;
           });
       })
   );
+});
+
+// Log any errors
+self.addEventListener('error', (event) => {
+  console.error('Service Worker error:', event.error);
 });
