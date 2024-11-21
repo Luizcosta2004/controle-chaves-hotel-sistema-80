@@ -1,4 +1,4 @@
-import { Menu, Download, Upload } from "lucide-react";
+import { Menu, Download, Upload, Save } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -133,6 +133,10 @@ const Header = () => {
                 <DropdownMenuItem onClick={() => navigate("/sobre")}>
                   Informações do Programa
                 </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleSave}>
+                  <Save className="h-4 w-4 mr-2" />
+                  Salvar Alterações
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
@@ -153,12 +157,6 @@ const Header = () => {
             >
               <Download className="h-4 w-4 mr-2" />
               Exportar
-            </Button>
-            <Button 
-              className="bg-green-600 hover:bg-green-700 text-white" 
-              onClick={handleSave}
-            >
-              Salvar
             </Button>
           </div>
         </div>
