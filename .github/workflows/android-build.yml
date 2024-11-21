@@ -14,9 +14,9 @@ jobs:
       PATH: $ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$GRADLE_HOME/bin:$PATH
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
       - name: Set up Android
-        uses: android-actions/setup-android@v2
+        uses: android-actions/setup-android@v3
       - name: Build APK
         run: |
           cd android
