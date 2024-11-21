@@ -1,3 +1,4 @@
+Nome  :     Construção Android
 name: Android Build
 
 on:
@@ -8,6 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      ANDROID_HOME: ${{ runner.toolCache }}/android
+      GRADLE_HOME: ${{ runner.toolCache }}/gradle
+      PATH: $ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$GRADLE_HOME/bin:$PATH
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
