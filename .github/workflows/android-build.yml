@@ -9,7 +9,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    version:  '2'
     env:
       ANDROID_HOME: ${{ github.actions.Cache }}/android
       GRADLE_HOME: ${{ github.actions.Cache }}/gradle
