@@ -15,6 +15,12 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
+
+      - name: Install tar
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y tar
+        
       - name: Set up Android
         uses: android-actions/setup-android@v3
       - name: Build APK
@@ -25,4 +31,5 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: app-debug.apk
+          
           path: android/app/build/outputs/apk/debug/app-debug.apk
