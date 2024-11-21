@@ -9,9 +9,10 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    version:  '2'
     env:
-      ANDROID_HOME: ${{ runner.toolCache }}/android
-      GRADLE_HOME: ${{ runner.toolCache }}/gradle
+      ANDROID_HOME: ${{ github.actions.Cache }}/android
+      GRADLE_HOME: ${{ github.actions.Cache }}/gradle
       PATH: $ANDROID_HOME/tools:$ANDROID_HOME/platform-tools:$GRADLE_HOME/bin:$PATH
     steps:
       - name: Checkout code
