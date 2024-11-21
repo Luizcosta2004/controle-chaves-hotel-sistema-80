@@ -19,6 +19,7 @@ const Historico = () => {
   });
 
   const handlePrint = () => {
+    console.log("Iniciando impressão do relatório");
     const printContent = historico.map((item: HistoricoType) => `
       Data: ${new Date(item.data).toLocaleString()}
       Descrição: ${item.descricao}
@@ -59,14 +60,14 @@ const Historico = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 pt-20">
-      <div className="flex justify-between items-center mb-4">
+    <div className="container mx-auto px-4 py-8">
+      <div className="flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">Histórico de Movimentação</h1>
         <Button 
           onClick={handlePrint}
-          className="bg-primary hover:bg-primary/90 text-white"
+          className="bg-primary hover:bg-primary/90 text-white flex items-center gap-2"
         >
-          <Printer className="h-5 w-5 mr-2" />
+          <Printer className="h-5 w-5" />
           Imprimir Relatório
         </Button>
       </div>
