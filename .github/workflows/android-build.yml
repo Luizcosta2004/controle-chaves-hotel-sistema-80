@@ -21,10 +21,9 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm cache clean --force
-          rm -rf node_modules
           npm install
-          npm ci
+          npm install @capacitor/android
+          npm install @capacitor/cli
 
       - name: Build web app
         run: npm run build
@@ -38,15 +37,10 @@ jobs:
       - name: Setup Android SDK
         uses: android-actions/setup-android@v3
 
-      - name: Install Capacitor CLI
+      - name: Initialize Capacitor
         run: |
-          npm install -g @capacitor/cli
-          npm install @capacitor/android
-
-      - name: Sync Capacitor
-        run: |
-          npx cap add android
-          npx cap sync android
+          npx cap add android || true
+          npx cap sync
 
       - name: Build Android Debug APK
         run: |
