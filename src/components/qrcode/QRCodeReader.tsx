@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
-import { QrReader } from "react-qr-reader";
+import { Html5QrcodeScanner } from "html5-qrcode";
 import {
   Select,
   SelectContent,
@@ -17,24 +17,36 @@ interface QRCodeReaderProps {
 }
 
 export function QRCodeReader({ operationType, setOperationType, onScan }: QRCodeReaderProps) {
-  const [isReading, setIsReading] = useState(true);
-  const [tempResult, setTempResult] = useState<any>(null);
+  const [isScanning, setIsScanning] = useState(false);
   const [scannedResult, setScannedResult] = useState("");
 
-  const handleScan = (result: any) => {
-    if (result?.text && isReading) {
-      setTempResult(result);
-      setIsReading(false);
-    }
-  };
+  useEffect(() => {
+    let scanner: Html5QrcodeScanner | null = null;
 
-  const handleConfirm = () => {
-    if (tempResult?.text) {
-      onScan(tempResult);
-      setScannedResult(tempResult.text);
-      setTempResult(null);
+    if (isScanning) {
+      scanner = new Html5QrcodeScanner(
+        "qr-reader",
+        { fps: 10, qrbox: { width: 250, height: 250 } },
+        false
+      );
+
+      scanner.render((decodedText) => {
+        console.log("QR Code detected:", decodedText);
+        setScannedResult(decodedText);
+        setIsScanning(false);
+        onScan({ text: decodedText });
+        scanner?.clear();
+      }, (error) => {
+        console.log("QR Code scan error:", error);
+      });
     }
-  };
+
+    return () => {
+      if (scanner) {
+        scanner.clear().catch(console.error);
+      }
+    };
+  }, [isScanning, onScan]);
 
   return (
     <div className="max-w-sm mx-auto">
@@ -54,44 +66,17 @@ export function QRCodeReader({ operationType, setOperationType, onScan }: QRCode
         </Select>
       </div>
       
-      {isReading ? (
-        <QrReader
-          onResult={handleScan}
-          constraints={{ facingMode: "environment" }}
-          className="w-full"
-          scanDelay={500}
-          videoId="qr-video"
-        />
-      ) : tempResult ? (
-        <div className="text-center space-y-4">
-          <p className="text-lg font-medium">QR Code detectado!</p>
-          <div className="flex gap-2 justify-center">
-            <Button 
-              onClick={handleConfirm}
-              className="bg-green-600 hover:bg-green-700"
-            >
-              Confirmar Leitura
-            </Button>
-            <Button 
-              onClick={() => {
-                setTempResult(null);
-                setIsReading(true);
-              }}
-              variant="outline"
-            >
-              Cancelar
-            </Button>
-          </div>
-        </div>
-      ) : (
+      {!isScanning ? (
         <div className="text-center">
           <Button 
-            onClick={() => setIsReading(true)}
+            onClick={() => setIsScanning(true)}
             className="bg-green-600 hover:bg-green-700"
           >
-            Ler Novo QR Code
+            Iniciar Leitura do QR Code
           </Button>
         </div>
+      ) : (
+        <div id="qr-reader" className="w-full" />
       )}
       
       {scannedResult && (
