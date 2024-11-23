@@ -19,7 +19,10 @@ const config: CapacitorConfig = {
     minSdkVersion: 22,
     targetSdkVersion: 33,
     versionCode: 1,
-    versionName: "1.0.0"
+    versionName: "1.0.0",
+    permissions: [
+      "android.permission.CAMERA"
+    ]
   },
   plugins: {
     SplashScreen: {
@@ -28,6 +31,12 @@ const config: CapacitorConfig = {
       showSpinner: true,
       androidSpinnerStyle: "large",
       spinnerColor: "#ffffff"
+    },
+    Permissions: {
+      camera: {
+        alias: "camera",
+        required: true
+      }
     }
   }
 };
