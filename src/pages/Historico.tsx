@@ -39,6 +39,10 @@ const Historico = () => {
               h1 { color: #4F46E5; margin-bottom: 20px; }
               .entry { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
               .label { font-weight: bold; }
+              @media print {
+                body { padding: 0; }
+                button { display: none; }
+              }
             </style>
           </head>
           <body>
@@ -51,11 +55,15 @@ const Historico = () => {
                 <div><span class="label">Hóspede:</span> ${item.hospede || '-'}</div>
               </div>
             `).join('')}
+            <script>
+              window.onload = function() {
+                window.print();
+              }
+            </script>
           </body>
         </html>
       `);
       printWindow.document.close();
-      printWindow.print();
     }
   };
 
