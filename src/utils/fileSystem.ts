@@ -8,7 +8,7 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
     try {
       const base64Data = await blobToBase64(data);
       
-      // Criar diretório se não existir
+      // Create directory if it doesn't exist
       const directory = filePath.substring(0, filePath.lastIndexOf('/'));
       await Filesystem.mkdir({
         path: directory,
@@ -16,7 +16,7 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
         recursive: true
       });
 
-      // Salvar arquivo
+      // Save file
       await Filesystem.writeFile({
         path: filePath,
         data: base64Data,
@@ -30,7 +30,7 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
       throw error;
     }
   } else {
-    // Fallback para navegador web
+    // Fallback for web browser
     const url = URL.createObjectURL(data);
     const a = document.createElement('a');
     a.href = url;

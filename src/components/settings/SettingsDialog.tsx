@@ -7,7 +7,6 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
-import { Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
 import { Filesystem, Directory } from '@capacitor/filesystem';
@@ -27,13 +26,17 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
     const loadSettings = async () => {
       try {
         if (isNativePlatform) {
-          const result = await Filesystem.readFile({
-            path: 'settings.json',
-            directory: Directory.Documents
-          });
-          const settings = JSON.parse(result.data);
-          setPrinterPath(settings.printerPath || '/dev/usb/lp0');
-          setExportPath(settings.exportPath || '/storage/emulated/0/Download/HotelKeys');
+          try {
+            const result = await Filesystem.readFile({
+              path: 'settings.json',
+              directory: Directory.Documents
+            });
+            const settings = JSON.parse(result.data);
+            setPrinterPath(settings.printerPath || '/dev/usb/lp0');
+            setExportPath(settings.exportPath || '/storage/emulated/0/Download/HotelKeys');
+          } catch (error) {
+            console.log('Settings file not found, using defaults');
+          }
         } else {
           const savedPrinterPath = localStorage.getItem('printerPath');
           const savedExportPath = localStorage.getItem('exportPath');
@@ -63,7 +66,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
           recursive: true
         });
 
-        // Criar diretório de exportação se não existir
+        // Create export directory if it doesn't exist
         await Filesystem.mkdir({
           path: exportPath,
           directory: Directory.Documents,
