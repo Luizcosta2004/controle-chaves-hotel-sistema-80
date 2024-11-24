@@ -31,7 +31,7 @@ export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
               path: 'settings.json',
               directory: Directory.Documents
             });
-            const settings = JSON.parse(result.data);
+            const settings = JSON.parse(result.data as string);
             setPrinterPath(settings.printerPath || '/dev/usb/lp0');
             setExportPath(settings.exportPath || '/storage/emulated/0/Download/HotelKeys');
           } catch (error) {

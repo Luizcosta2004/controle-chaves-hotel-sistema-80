@@ -12,7 +12,7 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
       const directory = filePath.substring(0, filePath.lastIndexOf('/'));
       await Filesystem.mkdir({
         path: directory,
-        directory: Directory.Documents,
+        directory: Directory.External,
         recursive: true
       });
 
@@ -20,7 +20,7 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
       await Filesystem.writeFile({
         path: filePath,
         data: base64Data,
-        directory: Directory.Documents,
+        directory: Directory.External,
         recursive: true
       });
       
