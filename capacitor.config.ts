@@ -7,7 +7,8 @@ const config: CapacitorConfig = {
   server: {
     androidScheme: 'https',
     cleartext: true,
-    allowNavigation: ['*']
+    allowNavigation: ['*'],
+    hostname: 'app'
   },
   android: {
     buildOptions: {
@@ -21,7 +22,9 @@ const config: CapacitorConfig = {
     versionCode: 1,
     versionName: "1.0.0",
     permissions: [
-      "android.permission.CAMERA"
+      "android.permission.CAMERA",
+      "android.permission.INTERNET",
+      "android.permission.ACCESS_NETWORK_STATE"
     ]
   },
   plugins: {
