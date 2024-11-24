@@ -1,4 +1,5 @@
-import { Capacitor, Filesystem, Directory } from '@capacitor/core';
+import { Capacitor } from '@capacitor/core';
+import { Filesystem, Directory } from '@capacitor/filesystem';
 
 export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
   console.log('Saving file:', filePath);
