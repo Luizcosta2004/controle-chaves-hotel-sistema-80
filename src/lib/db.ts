@@ -31,6 +31,11 @@ export const db = {
     return data ? JSON.parse(data) : [];
   },
   
+  setHistorico: async (historico: any[]) => {
+    localStorage.setItem(DB_KEYS.historico, JSON.stringify(historico));
+    return historico;
+  },
+  
   addHistorico: async (historico: any) => {
     const atual = await db.getHistorico();
     const novo = [historico, ...atual];
