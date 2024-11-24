@@ -11,6 +11,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import printJS from 'print-js';
 
 const Historico = () => {
   const { data: historico = [] } = useQuery({
@@ -20,51 +21,25 @@ const Historico = () => {
 
   const handlePrint = () => {
     console.log("Iniciando impressão do relatório");
-    const printContent = historico.map((item: HistoricoType) => `
-      Data: ${new Date(item.data).toLocaleString()}
-      Descrição: ${item.descricao}
-      Quarto: ${item.quarto || '-'}
-      Hóspede: ${item.hospede || '-'}
-      ----------------------------------------
-    `).join('\n');
+    
+    const printContent = historico.map((item: HistoricoType) => ({
+      data: new Date(item.data).toLocaleString(),
+      descricao: item.descricao,
+      quarto: item.quarto || '-',
+      hospede: item.hospede || '-'
+    }));
 
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>Relatório de Histórico</title>
-            <style>
-              body { font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; }
-              h1 { color: #4F46E5; margin-bottom: 20px; }
-              .entry { margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 15px; }
-              .label { font-weight: bold; }
-              @media print {
-                body { padding: 0; }
-                button { display: none; }
-              }
-            </style>
-          </head>
-          <body>
-            <h1>Relatório de Histórico</h1>
-            ${historico.map((item: HistoricoType) => `
-              <div class="entry">
-                <div><span class="label">Data:</span> ${new Date(item.data).toLocaleString()}</div>
-                <div><span class="label">Descrição:</span> ${item.descricao}</div>
-                <div><span class="label">Quarto:</span> ${item.quarto || '-'}</div>
-                <div><span class="label">Hóspede:</span> ${item.hospede || '-'}</div>
-              </div>
-            `).join('')}
-            <script>
-              window.onload = function() {
-                window.print();
-              }
-            </script>
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-    }
+    printJS({
+      printable: printContent,
+      properties: ['data', 'descricao', 'quarto', 'hospede'],
+      type: 'json',
+      header: '<h3 class="custom-h3">Relatório de Histórico</h3>',
+      headerStyle: 'font-weight: 600; font-size: 24px; margin-bottom: 10px; color: #4F46E5;',
+      gridStyle: 'border: 1px solid #ddd; padding: 8px;',
+      gridHeaderStyle: 'font-weight: bold; background-color: #f3f4f6;',
+      documentTitle: 'Relatório de Histórico',
+      targetStyles: ['*']
+    });
   };
 
   return (

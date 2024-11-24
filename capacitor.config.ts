@@ -21,7 +21,8 @@ const config: CapacitorConfig = {
     versionCode: 1,
     versionName: "1.0.0",
     permissions: [
-      "android.permission.CAMERA"
+      "android.permission.CAMERA",
+      "android.permission.PRINTING"
     ]
   },
   plugins: {
