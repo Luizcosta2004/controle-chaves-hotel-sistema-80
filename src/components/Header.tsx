@@ -1,4 +1,4 @@
-import { Menu, Download, Upload, Save } from "lucide-react";
+import { Menu, Download, Upload, Save, Settings } from "lucide-react";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/components/ui/use-toast";
@@ -9,10 +9,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { db } from "@/lib/db";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
+import { useState } from "react";
 
 const Header = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const [printerPath, setPrinterPath] = useState(localStorage.getItem('printerPath') || '');
+  const [exportPath, setExportPath] = useState(localStorage.getItem('exportPath') || '/storage/emulated/0/Download');
 
   const handleSave = () => {
     toast({
@@ -37,18 +43,29 @@ const Header = () => {
       };
 
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `hotel-data-${new Date().toISOString().split('T')[0]}.json`;
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const fileName = `hotel-data-${new Date().toISOString().split('T')[0]}.json`;
+      const filePath = `${exportPath}/${fileName}`;
+
+      // Usando a API File System do Android
+      if (window.webkit?.messageHandlers?.saveFile) {
+        window.webkit.messageHandlers.saveFile.postMessage({
+          data: blob,
+          path: filePath
+        });
+      } else {
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }
 
       toast({
         title: "Sucesso",
-        description: "Dados exportados com sucesso!",
+        description: `Dados exportados com sucesso para ${filePath}!`,
       });
     } catch (error) {
       toast({
@@ -102,6 +119,15 @@ const Header = () => {
     input.click();
   };
 
+  const handleSaveSettings = () => {
+    localStorage.setItem('printerPath', printerPath);
+    localStorage.setItem('exportPath', exportPath);
+    toast({
+      title: "Sucesso",
+      description: "Configurações salvas com sucesso!",
+    });
+  };
+
   return (
     <header className="fixed top-0 left-0 right-0 bg-primary border-b z-50 shadow-md">
       <div className="container mx-auto px-4 py-2">
@@ -142,6 +168,51 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-2">
+            <Dialog>
+              <DialogTrigger asChild>
+                <Button 
+                  variant="outline"
+                  className="bg-white hover:bg-gray-100"
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Configurações
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Configurações do Sistema</DialogTitle>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="printer" className="text-right">
+                      Caminho da Impressora
+                    </Label>
+                    <Input
+                      id="printer"
+                      className="col-span-3"
+                      placeholder="/dev/usb/lp0"
+                      value={printerPath}
+                      onChange={(e) => setPrinterPath(e.target.value)}
+                    />
+                  </div>
+                  <div className="grid grid-cols-4 items-center gap-4">
+                    <Label htmlFor="export" className="text-right">
+                      Pasta de Exportação
+                    </Label>
+                    <Input
+                      id="export"
+                      className="col-span-3"
+                      placeholder="/storage/emulated/0/Download"
+                      value={exportPath}
+                      onChange={(e) => setExportPath(e.target.value)}
+                    />
+                  </div>
+                  <Button onClick={handleSaveSettings} className="ml-auto">
+                    Salvar Configurações
+                  </Button>
+                </div>
+              </DialogContent>
+            </Dialog>
             <Button 
               variant="outline"
               className="bg-white hover:bg-gray-100"
