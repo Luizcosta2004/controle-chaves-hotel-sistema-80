@@ -27,7 +27,8 @@ const config: CapacitorConfig = {
       "android.permission.ACCESS_NETWORK_STATE",
       "android.permission.WRITE_EXTERNAL_STORAGE",
       "android.permission.READ_EXTERNAL_STORAGE",
-      "android.permission.MANAGE_EXTERNAL_STORAGE"
+      "android.permission.MANAGE_EXTERNAL_STORAGE",
+      "android.permission.PRINT"
     ]
   },
   plugins: {
@@ -45,7 +46,7 @@ const config: CapacitorConfig = {
       }
     },
     Filesystem: {
-      directory: "Documents"
+      directory: "External"
     }
   }
 };

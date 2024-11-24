@@ -3,6 +3,7 @@ import { db } from "@/lib/db";
 import { Historico as HistoricoType } from "@/types/historico";
 import { Printer } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/components/ui/use-toast";
 import {
   Table,
   TableBody,
@@ -11,17 +12,108 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { isNativePlatform } from "@/capacitor";
 
 const Historico = () => {
+  const { toast } = useToast();
   const { data: historico = [] } = useQuery({
     queryKey: ["historico"],
     queryFn: db.getHistorico,
   });
 
-  const handlePrint = () => {
+  const handlePrint = async () => {
     console.log("Iniciando impressão do relatório");
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
+    
+    if (isNativePlatform) {
+      try {
+        const printContent = `
+          <!DOCTYPE html>
+          <html>
+            <head>
+              <title>Relatório de Histórico</title>
+              <meta charset="UTF-8">
+              <style>
+                body { 
+                  font-family: Arial, sans-serif; 
+                  line-height: 1.6; 
+                  padding: 20px; 
+                  margin: 0;
+                }
+                h1 { 
+                  color: #4F46E5; 
+                  margin-bottom: 20px; 
+                  text-align: center;
+                }
+                table { 
+                  width: 100%;
+                  border-collapse: collapse;
+                  margin-bottom: 20px;
+                }
+                th, td { 
+                  border: 1px solid #ddd;
+                  padding: 12px;
+                  text-align: left;
+                }
+                th { 
+                  background-color: #f3f4f6;
+                  font-weight: bold;
+                }
+                tr:nth-child(even) { 
+                  background-color: #f9fafb;
+                }
+              </style>
+            </head>
+            <body>
+              <h1>Relatório de Histórico</h1>
+              <table>
+                <thead>
+                  <tr>
+                    <th>Data</th>
+                    <th>Descrição</th>
+                    <th>Quarto</th>
+                    <th>Hóspede</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${historico.map((item: HistoricoType) => `
+                    <tr>
+                      <td>${new Date(item.data).toLocaleString()}</td>
+                      <td>${item.descricao}</td>
+                      <td>${item.quarto || '-'}</td>
+                      <td>${item.hospede || '-'}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </body>
+          </html>
+        `;
+
+        // Criar um arquivo temporário para impressão
+        const printPath = '/storage/emulated/0/Download/HotelKeys/temp_print.html';
+        const blob = new Blob([printContent], { type: 'text/html' });
+        
+        // Salvar o arquivo temporário
+        await saveFile(blob, printPath);
+        
+        // Abrir o arquivo para impressão
+        window.open(`file://${printPath}`, '_system');
+        
+        toast({
+          title: "Sucesso",
+          description: "Arquivo de impressão gerado com sucesso!",
+        });
+      } catch (error) {
+        console.error('Erro ao gerar arquivo de impressão:', error);
+        toast({
+          title: "Erro",
+          description: "Erro ao gerar arquivo de impressão.",
+          variant: "destructive",
+        });
+      }
+    } else {
+      const printWindow = window.open('', '_blank');
+      if (printWindow) {
       printWindow.document.write(`
         <!DOCTYPE html>
         <html>
@@ -96,6 +188,7 @@ const Historico = () => {
         </html>
       `);
       printWindow.document.close();
+      }
     }
   };
 
