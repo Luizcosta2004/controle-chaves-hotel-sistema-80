@@ -8,8 +8,10 @@ import {
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Settings } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/components/ui/use-toast";
+import { Filesystem, Directory } from '@capacitor/filesystem';
+import { isNativePlatform } from '@/capacitor';
 
 interface SettingsDialogProps {
   open: boolean;
@@ -18,17 +20,73 @@ interface SettingsDialogProps {
 
 export const SettingsDialog = ({ open, onOpenChange }: SettingsDialogProps) => {
   const { toast } = useToast();
-  const [printerPath, setPrinterPath] = useState(localStorage.getItem('printerPath') || '');
-  const [exportPath, setExportPath] = useState(localStorage.getItem('exportPath') || '/storage/emulated/0/Download/HotelKeys');
+  const [printerPath, setPrinterPath] = useState('/dev/usb/lp0');
+  const [exportPath, setExportPath] = useState('/storage/emulated/0/Download/HotelKeys');
 
-  const handleSaveSettings = () => {
-    localStorage.setItem('printerPath', printerPath);
-    localStorage.setItem('exportPath', exportPath);
-    toast({
-      title: "Sucesso",
-      description: "Configurações salvas com sucesso!",
-    });
-    onOpenChange(false);
+  useEffect(() => {
+    const loadSettings = async () => {
+      try {
+        if (isNativePlatform) {
+          const result = await Filesystem.readFile({
+            path: 'settings.json',
+            directory: Directory.Documents
+          });
+          const settings = JSON.parse(result.data);
+          setPrinterPath(settings.printerPath || '/dev/usb/lp0');
+          setExportPath(settings.exportPath || '/storage/emulated/0/Download/HotelKeys');
+        } else {
+          const savedPrinterPath = localStorage.getItem('printerPath');
+          const savedExportPath = localStorage.getItem('exportPath');
+          if (savedPrinterPath) setPrinterPath(savedPrinterPath);
+          if (savedExportPath) setExportPath(savedExportPath);
+        }
+      } catch (error) {
+        console.log('Error loading settings:', error);
+      }
+    };
+
+    loadSettings();
+  }, []);
+
+  const handleSaveSettings = async () => {
+    try {
+      const settings = {
+        printerPath,
+        exportPath
+      };
+
+      if (isNativePlatform) {
+        await Filesystem.writeFile({
+          path: 'settings.json',
+          data: JSON.stringify(settings),
+          directory: Directory.Documents,
+          recursive: true
+        });
+
+        // Criar diretório de exportação se não existir
+        await Filesystem.mkdir({
+          path: exportPath,
+          directory: Directory.Documents,
+          recursive: true
+        });
+      } else {
+        localStorage.setItem('printerPath', printerPath);
+        localStorage.setItem('exportPath', exportPath);
+      }
+
+      toast({
+        title: "Sucesso",
+        description: "Configurações salvas com sucesso!",
+      });
+      onOpenChange(false);
+    } catch (error) {
+      console.error('Error saving settings:', error);
+      toast({
+        title: "Erro",
+        description: "Erro ao salvar as configurações. Verifique as permissões.",
+        variant: "destructive"
+      });
+    }
   };
 
   return (

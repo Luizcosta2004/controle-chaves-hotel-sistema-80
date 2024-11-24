@@ -7,13 +7,24 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
   if (Capacitor.isNativePlatform()) {
     try {
       const base64Data = await blobToBase64(data);
+      
+      // Criar diretório se não existir
+      const directory = filePath.substring(0, filePath.lastIndexOf('/'));
+      await Filesystem.mkdir({
+        path: directory,
+        directory: Directory.Documents,
+        recursive: true
+      });
+
+      // Salvar arquivo
       await Filesystem.writeFile({
         path: filePath,
         data: base64Data,
         directory: Directory.Documents,
         recursive: true
       });
-      console.log('File saved successfully');
+      
+      console.log('File saved successfully to:', filePath);
     } catch (error) {
       console.error('Error saving file:', error);
       throw error;

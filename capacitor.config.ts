@@ -43,6 +43,9 @@ const config: CapacitorConfig = {
         alias: "camera",
         required: true
       }
+    },
+    Filesystem: {
+      directory: "Documents"
     }
   }
 };
