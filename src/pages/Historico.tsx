@@ -11,7 +11,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import printJS from 'print-js';
 
 const Historico = () => {
   const { data: historico = [] } = useQuery({
@@ -21,25 +20,83 @@ const Historico = () => {
 
   const handlePrint = () => {
     console.log("Iniciando impressão do relatório");
-    
-    const printContent = historico.map((item: HistoricoType) => ({
-      data: new Date(item.data).toLocaleString(),
-      descricao: item.descricao,
-      quarto: item.quarto || '-',
-      hospede: item.hospede || '-'
-    }));
-
-    printJS({
-      printable: printContent,
-      properties: ['data', 'descricao', 'quarto', 'hospede'],
-      type: 'json',
-      header: '<h3 class="custom-h3">Relatório de Histórico</h3>',
-      headerStyle: 'font-weight: 600; font-size: 24px; margin-bottom: 10px; color: #4F46E5;',
-      gridStyle: 'border: 1px solid #ddd; padding: 8px;',
-      gridHeaderStyle: 'font-weight: bold; background-color: #f3f4f6;',
-      documentTitle: 'Relatório de Histórico',
-      targetStyles: ['*']
-    });
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+          <head>
+            <title>Relatório de Histórico</title>
+            <meta charset="UTF-8">
+            <style>
+              body { 
+                font-family: Arial, sans-serif; 
+                line-height: 1.6; 
+                padding: 20px; 
+                margin: 0;
+              }
+              h1 { 
+                color: #4F46E5; 
+                margin-bottom: 20px; 
+                text-align: center;
+              }
+              table { 
+                width: 100%;
+                border-collapse: collapse;
+                margin-bottom: 20px;
+              }
+              th, td { 
+                border: 1px solid #ddd;
+                padding: 12px;
+                text-align: left;
+              }
+              th { 
+                background-color: #f3f4f6;
+                font-weight: bold;
+              }
+              tr:nth-child(even) { 
+                background-color: #f9fafb;
+              }
+              @media print {
+                body { padding: 0; }
+                h1 { margin-top: 0; }
+              }
+            </style>
+          </head>
+          <body>
+            <h1>Relatório de Histórico</h1>
+            <table>
+              <thead>
+                <tr>
+                  <th>Data</th>
+                  <th>Descrição</th>
+                  <th>Quarto</th>
+                  <th>Hóspede</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${historico.map((item: HistoricoType) => `
+                  <tr>
+                    <td>${new Date(item.data).toLocaleString()}</td>
+                    <td>${item.descricao}</td>
+                    <td>${item.quarto || '-'}</td>
+                    <td>${item.hospede || '-'}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+            <script>
+              window.onload = () => {
+                setTimeout(() => {
+                  window.print();
+                }, 500);
+              };
+            </script>
+          </body>
+        </html>
+      `);
+      printWindow.document.close();
+    }
   };
 
   return (
