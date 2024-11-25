@@ -8,14 +8,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useState } from "react";
-import { SettingsDialog } from "./settings/SettingsDialog";
 import { ExportButton } from "./header/ExportButton";
 
 const Header = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const handleSave = () => {
     toast({
@@ -63,18 +60,10 @@ const Header = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <Button 
-              variant="outline"
-              className="bg-white hover:bg-gray-100"
-              onClick={() => setSettingsOpen(true)}
-            >
-              Configurações
-            </Button>
             <ExportButton />
           </div>
         </div>
       </div>
-      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
     </header>
   );
 };

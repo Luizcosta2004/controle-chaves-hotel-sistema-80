@@ -29,7 +29,8 @@ const config: CapacitorConfig = {
       "android.permission.READ_EXTERNAL_STORAGE",
       "android.permission.MANAGE_EXTERNAL_STORAGE",
       "android.permission.PRINT",
-      "android.webkit.PermissionRequest"
+      "android.webkit.PermissionRequest",
+      "android.permission.QUERY_ALL_PACKAGES"
     ]
   },
   plugins: {
