@@ -22,14 +22,14 @@ const config: CapacitorConfig = {
     versionCode: 1,
     versionName: "1.0.0",
     permissions: [
-      "android.permission.CAMERA",
       "android.permission.INTERNET",
       "android.permission.ACCESS_NETWORK_STATE",
+      "android.permission.WAKE_LOCK",
+      "android.permission.CAMERA",
+      "android.permission.PRINT",
       "android.permission.WRITE_EXTERNAL_STORAGE",
       "android.permission.READ_EXTERNAL_STORAGE",
       "android.permission.MANAGE_EXTERNAL_STORAGE",
-      "android.permission.PRINT",
-      "android.webkit.PermissionRequest",
       "android.permission.QUERY_ALL_PACKAGES"
     ]
   },
