@@ -1,5 +1,5 @@
 import { Capacitor } from '@capacitor/core';
-import { Filesystem, Directory } from '@capacitor/filesystem';
+import { Filesystem, Directory, Encoding } from '@capacitor/filesystem';
 
 export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
   console.log('Saving file:', filePath);
@@ -10,21 +10,30 @@ export const saveFile = async (data: Blob, filePath: string): Promise<void> => {
       
       // Create directory if it doesn't exist
       const directory = filePath.substring(0, filePath.lastIndexOf('/'));
-      await Filesystem.mkdir({
-        path: directory,
-        directory: Directory.External,
-        recursive: true
-      });
+      console.log('Creating directory:', directory);
+      
+      try {
+        await Filesystem.mkdir({
+          path: directory,
+          directory: Directory.External,
+          recursive: true
+        });
+        console.log('Directory created or already exists');
+      } catch (error) {
+        console.error('Error creating directory:', error);
+      }
 
       // Save file
-      await Filesystem.writeFile({
+      console.log('Writing file...');
+      const result = await Filesystem.writeFile({
         path: filePath,
         data: base64Data,
         directory: Directory.External,
-        recursive: true
+        recursive: true,
+        encoding: Encoding.UTF8
       });
       
-      console.log('File saved successfully to:', filePath);
+      console.log('File saved successfully:', result);
     } catch (error) {
       console.error('Error saving file:', error);
       throw error;
