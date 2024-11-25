@@ -41,14 +41,24 @@ const config: CapacitorConfig = {
       androidSpinnerStyle: "large",
       spinnerColor: "#ffffff"
     },
-    Permissions: {
-      camera: {
-        alias: "camera",
-        required: true
+    Browser: {
+      androidProperties: {
+        showTitle: true,
+        toolbarColor: "#4F46E5",
+        secondaryToolbarColor: "#ffffff",
+        enableUrlBarHiding: true,
+        enableDefaultShare: true
       }
     },
     Filesystem: {
-      directory: "Documents"
+      directory: "Documents",
+      androidDirectory: "Download/HotelKeys"
+    },
+    App: {
+      backgroundColor: "#4F46E5",
+      webViewAllowFileAccess: true,
+      webViewAllowFileAccessFromFileURLs: true,
+      webViewAllowUniversalAccessFromFileURLs: true
     }
   }
 };
