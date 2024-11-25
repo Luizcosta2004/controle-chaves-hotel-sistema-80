@@ -8,7 +8,7 @@ const config: CapacitorConfig = {
     androidScheme: 'https',
     cleartext: true,
     allowNavigation: ['*'],
-    hostname: 'app'
+    hostname: 'localhost'
   },
   android: {
     buildOptions: {
@@ -28,7 +28,8 @@ const config: CapacitorConfig = {
       "android.permission.WRITE_EXTERNAL_STORAGE",
       "android.permission.READ_EXTERNAL_STORAGE",
       "android.permission.MANAGE_EXTERNAL_STORAGE",
-      "android.permission.PRINT"
+      "android.permission.PRINT",
+      "android.webkit.PermissionRequest"
     ]
   },
   plugins: {
@@ -46,7 +47,7 @@ const config: CapacitorConfig = {
       }
     },
     Filesystem: {
-      directory: "External"
+      directory: "Documents"
     }
   }
 };
